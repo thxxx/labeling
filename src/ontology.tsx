@@ -26,7 +26,7 @@ const Ontology = ({ isOpen, onClose }: OntologyProps) => {
           <div>
             <p>
               **목적** Sound generation model을 위해 sound에 알맞은 caption을
-              다는 것이 목표 한 줄 요약 : Sound의 Description 적기
+              다는 것이 목표 한 줄 요약 : Sound의 Description 적기 (작성중)
             </p>
             <br />
             <p>고려할 사항</p>
@@ -50,10 +50,9 @@ const Ontology = ({ isOpen, onClose }: OntologyProps) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
+          <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
-          <Button variant="ghost">Secondary Action</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

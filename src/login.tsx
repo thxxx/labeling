@@ -10,8 +10,7 @@ const supabaseClient = createClient(
 );
 
 const Login = ({ loadAudios }: { loadAudios: () => void }) => {
-  const { id, isLoggedIn, user, setUser, setIsLoggedIn, setId } =
-    useUserStore();
+  const { id, setUser, setIsLoggedIn, setId } = useUserStore();
 
   const submitId = async (inputId: string) => {
     const { data, error } = await supabaseClient
@@ -24,6 +23,7 @@ const Login = ({ loadAudios }: { loadAudios: () => void }) => {
       loadAudios();
       console.log(inputId, data[0]);
     } else {
+      alert("wrong id");
       console.log("wrong!");
     }
   };
@@ -50,7 +50,7 @@ const Login = ({ loadAudios }: { loadAudios: () => void }) => {
   );
 };
 
-export default Login;
+export default React.memo(Login);
 
 const LoginContainer = styled.div`
     width:100%;

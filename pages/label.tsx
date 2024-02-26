@@ -36,7 +36,7 @@ const Label = ({ itemEl }: LabelProps) => {
 
   const submitCaption = async () => {
     if (!isStart) {
-      alert("Click Start Labeling Button before labeling!");
+      alert("Click Start Labeling Button before start labeling.");
       return;
     }
     if (description.length > 5 || ishard) {
@@ -72,7 +72,6 @@ const Label = ({ itemEl }: LabelProps) => {
           .eq("user_id", id)
           .eq("log_id", logId);
         setLogNum(logNum + 1);
-        console.log("새로 라벨링. 수정 X");
       }
     } else {
       toast({

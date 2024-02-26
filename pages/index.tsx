@@ -88,36 +88,36 @@ export default function Home() {
   };
 
   const loadAudios = async () => {
-    // console.log("load more datas ", allDatas.length);
-    // const { data, error } = await supabaseClient
-    //   .from("labels")
-    //   .select("*")
-    //   .eq("user_id", id)
-    //   .eq("is_done", false)
-    //   .gt("index", maxIndex)
-    //   .order("index", { ascending: true })
-    //   .limit(10);
-    // if (data && data.length > 0) {
-    //   const max_index = data.sort((a, b) => b.index - a.index)[0].index;
-    //   setMaxIndex(max_index);
-    //   setItems(data.sort((a, b) => a.index - b.index));
-    //   setAllDatas([...allDatas, ...data]);
-    // }
+    console.log("load more datas ", allDatas.length);
+    const { data, error } = await supabaseClient
+      .from("labels")
+      .select("*")
+      .eq("user_id", id)
+      .eq("is_done", false)
+      .gt("index", maxIndex)
+      .order("index", { ascending: true })
+      .limit(10);
+    if (data && data.length > 0) {
+      const max_index = data.sort((a, b) => b.index - a.index)[0].index;
+      setMaxIndex(max_index);
+      setItems(data.sort((a, b) => a.index - b.index));
+      setAllDatas([...allDatas, ...data]);
+    }
     // supabase에서 유저 id로, 아직 안한 것들 중 index 작은 순서대로 10개 불러오기
-    const datas = [
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-      dummy,
-    ];
-    setItems(datas);
-    setAllDatas([...allDatas, ...datas]);
+    // const datas = [
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    //   dummy,
+    // ];
+    // setItems(datas);
+    // setAllDatas([...allDatas, ...datas]);
   };
 
   return (
@@ -187,7 +187,7 @@ export default function Home() {
               <Button
                 onClick={() => {
                   if (minIndex === 0) {
-                    alert("No previous labeled data!");
+                    alert("It is the first page now.");
                     return;
                   }
                   previousLabelAudios();
@@ -200,7 +200,7 @@ export default function Home() {
               onClick={() => {
                 if (logNum < (page * ROWS_PER_PAGE) / 2 - 1) {
                   alert(
-                    "You have to label at least half of the previous audios!"
+                    "You have to label at least half of the current audios to see next 10 datas!"
                   );
                   return;
                 }
