@@ -35,12 +35,13 @@ export type ItemType = {
   audio_storage_link: string;
   how_many: number;
   index: number;
-  isDone: boolean;
+  is_done: boolean;
   hardtocap: boolean;
   description: string;
   audio_id: string;
-  userId: string;
+  user_id: string;
   last_modified_time: null | Date;
+  extra_information: string;
 };
 
 const dummy: ItemType = {
@@ -50,10 +51,11 @@ const dummy: ItemType = {
   how_many: 0,
   audio_id: "zxc",
   index: 0,
-  userId: "",
-  isDone: false,
+  user_id: "",
+  is_done: false,
   hardtocap: false,
   last_modified_time: null,
+  extra_information: "",
 };
 
 export default function Home() {
@@ -67,13 +69,14 @@ export default function Home() {
     setIsLoggedIn,
     setId,
   } = useUserStore();
-  const { logId, logNum, setLogId, setLogNum } = useLogStore();
+  const { logId, logNum, startedAt, setLogNum } = useLogStore();
   const [user, setUser] = useState<UserInformation>();
   const [page, setPage] = useState<number>(1);
   const [maxpage, setMaxpage] = useState<number>(1);
-  const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5]);
+  const [prevCount, setPrevCount] = useState<number>(0);
   const [items, setItems] = useState<ItemType[]>([]);
   const [maxIndex, setMaxIndex] = useState(-1);
+  const [minIndex, setMinIndex] = useState(100000);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
@@ -90,18 +93,31 @@ export default function Home() {
       console.log("wrong!");
     }
   };
-
-  const clickPage = (item: number) => {
-    setPage(item);
-    setPages([
-      item - 3,
-      item - 2,
-      item - 1,
-      item,
-      item + 1,
-      item + 2,
-      item + 3,
-    ]);
+  const previousLabelAudios = async () => {
+    const { data, error } = await supabaseClient
+      .from("labels")
+      .select("*")
+      .eq("user_id", id)
+      .eq("is_done", true)
+      .lt("index", minIndex)
+      .order("index", { ascending: false })
+      .limit(10);
+    console.log("prev data : ", data);
+    if (data && data.length > 0) {
+      const min_index = data.sort((a, b) => a.index - b.index)[0].index;
+      setMinIndex(min_index);
+      const added_list = [...data.sort((a, b) => a.index - b.index)];
+      while (added_list.length < 10) {
+        // 배열에 빈 값을 추가
+        added_list.push(null); // 또는 다른 값을 사용할 수 있습니다 (예: null, '')
+      }
+      setItems(added_list);
+      setAllDatas([...added_list, ...allDatas]);
+      setPage(page - 1);
+      setPrevCount(prevCount + 1);
+    } else {
+      setMinIndex(0);
+    }
   };
 
   const loadAudios = async () => {
@@ -112,12 +128,12 @@ export default function Home() {
       .eq("user_id", id)
       .eq("is_done", false)
       .gt("index", maxIndex)
+      .order("index", { ascending: true })
       .limit(10);
-    console.log(data);
-    if (data) {
+    if (data && data.length > 0) {
       const max_index = data.sort((a, b) => b.index - a.index)[0].index;
       setMaxIndex(max_index);
-      setItems(data);
+      setItems(data.sort((a, b) => a.index - b.index));
       setAllDatas([...allDatas, ...data]);
     }
     // supabase에서 유저 id로, 아직 안한 것들 중 index 작은 순서대로 10개 불러오기
@@ -146,34 +162,76 @@ export default function Home() {
             onClick={() => {
               onOpen();
             }}>
-            ontology보기
+            Check labeling instruction
           </FloatingButton>
-          <div>Hello Welcome {user.name}</div>
-          <div>Ontology : </div>
-          <p>There are rules.</p>
-          <Startlabeling />
-          <p>Current labeled num : {logNum}</p>
+          <IndexTopContainer>
+            <p>Hello Welcome {user.name}</p>
+            <p>
+              Check this guide when you do labeling :{" "}
+              <span
+                className="a"
+                onClick={() => {
+                  window.open(
+                    "https://www.notion.so/Test-Notion-Page-df374670f9f2413da5ad077b990fd9ca"
+                  );
+                }}>
+                Guide link
+              </span>
+            </p>
+            <p>Current labeled num : {logNum}</p>
+            <Startlabeling />
+            {startedAt && (
+              <p>
+                Current labeling is started at :{" "}
+                <span className="date">
+                  {startedAt &&
+                    new Date(startedAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      weekday: "long",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                </span>
+              </p>
+            )}
+          </IndexTopContainer>
           {items.map((itemEl, idx) => {
-            return <Label key={idx} itemEl={itemEl} />;
+            if (itemEl) {
+              return <Label key={idx} itemEl={itemEl} />;
+            }
           })}
           <PagesContainer>
-            {page > 1 && (
+            {page > 1 ? (
               <Button
                 onClick={() => {
                   const rows = allDatas.slice(
-                    (page - 1) * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE
+                    (page + prevCount - 2) * ROWS_PER_PAGE,
+                    (page + prevCount - 1) * ROWS_PER_PAGE
                   );
                   setItems(rows);
                   setPage(page - 1);
                 }}>
                 Prev rows
               </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  if (minIndex === 0) {
+                    alert("No previous labeled data!");
+                    return;
+                  }
+                  previousLabelAudios();
+                }}>
+                Check previous labeled datas
+              </Button>
             )}
-            <span>page : {page}</span>
+            <span className="pageNum">page {page}</span>
             <Button
               onClick={() => {
-                if (logNum < (page * ROWS_PER_PAGE) / 2) {
+                if (logNum < (page * ROWS_PER_PAGE) / 2 - 1) {
                   alert(
                     "You have to label at least half of the previous audios!"
                   );
@@ -185,14 +243,14 @@ export default function Home() {
                   loadAudios();
                 } else {
                   const rows = allDatas.slice(
-                    page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + 10
+                    (page + prevCount) * ROWS_PER_PAGE,
+                    (page + prevCount) * ROWS_PER_PAGE + 10
                   );
                   setPage(page + 1);
                   setItems(rows);
                 }
               }}>
-              Next rows
+              Next 10 rows
             </Button>
           </PagesContainer>
         </div>
@@ -231,6 +289,13 @@ const PagesContainer = styled.div`
       background:blue;
     }
   }
+  .pageNum{
+    padding:8px 10px;
+    background:rgba(190,230,190,0.6);
+    font-weight:700;
+    border-radius:6px;
+    margin:0px 5px;
+  }
 `;
 
 const FloatingButton = styled.div`
@@ -247,4 +312,26 @@ const FloatingButton = styled.div`
   flex-direction:row;
   justify-content:center;
   align-items:center;
+  text-align:center;
+`;
+
+const IndexTopContainer = styled.div`
+  padding:20px;
+  .a{
+    &:hover{
+      color:rgba(30,30,30,1);
+    }
+    cursor:pointer;
+    text-decoration:underline;
+    color:rgba(90,90,90,1);
+  }
+  p{
+    margin:10px 0px;
+    font-size:18px;
+  }
+
+  .date{
+    color:rgba(90,90,90,1);
+    font-size:16px;
+  }
 `;

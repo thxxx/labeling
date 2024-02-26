@@ -6,6 +6,7 @@ import { ItemType } from ".";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseClient } from ".";
 import { useLogStore } from "@/store/useLogStore";
+import { Badge } from "@chakra-ui/react";
 
 type LabelProps = {
   itemEl: ItemType;
@@ -19,6 +20,7 @@ const Label = ({ itemEl }: LabelProps) => {
   // id로 슈파베이스에서 읽어오기
   const [audioSrc, setAudioSrc] = useState("");
   const [description, setDescription] = useState("");
+  const [info, setInfo] = useState("");
   const [howmany, setHowmany] = useState(0);
   const [isDone, setIsDone] = useState(false);
   const [ishard, setIshard] = useState(false);
@@ -28,8 +30,9 @@ const Label = ({ itemEl }: LabelProps) => {
     setAudioSrc(itemEl.audio_storage_link);
     setDescription(itemEl.description);
     setHowmany(itemEl.how_many);
-    setIsDone(itemEl.isDone);
-  }, []);
+    setIsDone(itemEl.is_done);
+    setInfo(itemEl.extra_information);
+  }, [itemEl]);
 
   const submitCaption = async () => {
     if (!isStart) {
@@ -53,7 +56,7 @@ const Label = ({ itemEl }: LabelProps) => {
       setIsDone(true);
       toast({
         title: "Submit Succeeded",
-        description: "You can re",
+        description: "You can modify if you want.",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -84,21 +87,28 @@ const Label = ({ itemEl }: LabelProps) => {
 
   return (
     <LabelContainer>
-      <p>Index : {itemEl.index}</p>
+      <p className="index">Index : {itemEl.index}</p>
       <LabelTop>
-        <div>{audioSrc && <audio controls src={audioSrc}></audio>}</div>
+        <div className="audio">
+          {audioSrc && <audio controls src={audioSrc}></audio>}
+        </div>
         <div
           className="status"
           style={{
             color: `${isDone ? "green" : "red"}`,
           }}>
-          {isDone ? "Submitted" : "Not yet"}
+          {isDone ? (
+            <Badge colorScheme="green">Submitted</Badge>
+          ) : (
+            <Badge colorScheme="red">Not Done</Badge>
+          )}
         </div>
       </LabelTop>
-      <div>
-        <div>
+      <LabelBottom>
+        <div className="desc">
           <p>Description</p>
           <Textarea
+            rows={2}
             style={{
               background: `${
                 isDone ? "rgba(220,230,250,1)" : "rgba(255,255,255,1)"
@@ -108,7 +118,14 @@ const Label = ({ itemEl }: LabelProps) => {
             onChange={(e) => setDescription(e.currentTarget.value)}
           />
         </div>
-        <div>
+        <div className="desc">
+          <p>Extra information</p>
+          <Input
+            value={info || ""}
+            onChange={(e) => setInfo(e.currentTarget.value)}
+          />
+        </div>
+        <div className="hard">
           <p>Cannot label</p>
           <Checkbox
             isChecked={ishard}
@@ -117,7 +134,7 @@ const Label = ({ itemEl }: LabelProps) => {
             }}
           />
         </div>
-      </div>
+      </LabelBottom>
       <div>
         <Button w={300} onClick={() => submitCaption()}>
           {isDone ? "Update" : "Submit"}
@@ -135,6 +152,11 @@ const LabelContainer = styled.div`
     padding:15px;
     width:80%;
     margin:10px;
+
+    .index{
+      font-size:14px;
+      color:rgba(60,60,60,1);
+    }
 `;
 
 const LabelTop = styled.div`
@@ -146,5 +168,32 @@ const LabelTop = styled.div`
 
   .status{
     
+  }
+`;
+
+const LabelBottom = styled.div`
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  .desc{
+    margin:10px 0px;
+  }
+
+  div{
+    width:100%;
+  }
+  .hard{
+    width:100%;
+    display:flex;
+    flex-direction:row;
+    justify-content:start;
+    align-items:center;
+    margin:0px 0px 10px 0px;
+    p{
+      margin-right:10px;
+    }
   }
 `;

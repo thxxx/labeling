@@ -38,6 +38,7 @@ const LabelLogModal = () => {
   return (
     <>
       <Button
+        ml={5}
         onClick={async () => {
           const { data, error } = await supabaseClient
             .from("labelingControl")
@@ -53,17 +54,19 @@ const LabelLogModal = () => {
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent minWidth={1000}>
+        <ModalContent minWidth={1000} maxHeight={800}>
           <ModalHeader>Labeling log</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <div>
-              <div>
+              <div
+                style={{
+                  maxHeight: "600px",
+                  overflow: "scroll",
+                }}>
                 <TableContainer>
                   <Table variant="simple">
-                    <TableCaption>
-                      Imperial to metric conversion factors
-                    </TableCaption>
+                    <TableCaption>My Labeling histories</TableCaption>
                     <Thead>
                       <Tr>
                         <Th>Start labeling</Th>

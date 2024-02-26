@@ -15,8 +15,16 @@ const supabaseClient = createClient(
 const Startlabeling = () => {
   const { isStart, id, setId, setIsStart } = useUserStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { logId, logNum, labelLogs, setLabelLogs, setLogId, setLogNum } =
-    useLogStore();
+  const {
+    logId,
+    logNum,
+    labelLogs,
+    startedAt,
+    setStartedAt,
+    setLabelLogs,
+    setLogId,
+    setLogNum,
+  } = useLogStore();
 
   useEffect(() => {
     (async () => {
@@ -32,6 +40,7 @@ const Startlabeling = () => {
         setIsStart(true);
         setLogId(unfinished_log[0].log_id);
         setLogNum(unfinished_log[0].label_num);
+        setStartedAt(unfinished_log[0].start_at);
       }
     })();
   }, []);
@@ -47,6 +56,7 @@ const Startlabeling = () => {
       .insert(body);
     setIsStart(true);
     setLogId(newLogId);
+    setStartedAt(new Date());
   };
 
   const finishLabel = async () => {
@@ -64,6 +74,7 @@ const Startlabeling = () => {
   return (
     <div>
       <Button
+        colorScheme={isStart ? "red" : "green"}
         onClick={() => {
           if (isStart) {
             onOpen();
