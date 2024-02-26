@@ -24,6 +24,7 @@ import {
 } from "@chakra-ui/react";
 import { createClient } from "@supabase/supabase-js";
 import { useUserStore } from "@/store/useStore";
+import { v4 as uuidv4 } from "uuid";
 
 const supabaseClient = createClient(
   "https://hhvjxvsajsovyzgmfvgd.supabase.co",
@@ -34,6 +35,16 @@ const LabelLogModal = () => {
   const { id } = useUserStore();
   const { labelLogs, setLabelLogs } = useLogStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const upload_user = async () => {
+    const body = {
+      user_id: uuidv4(),
+      finish_num: 0,
+    };
+
+    const { data, error } = await supabaseClient.from("labelUser").insert(body);
+    console.log(data, error);
+  };
 
   return (
     <>
@@ -55,7 +66,7 @@ const LabelLogModal = () => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent minWidth={1000} maxHeight={800}>
-          <ModalHeader>Labeling log</ModalHeader>
+          <ModalHeader>Labeling log (sorted by recent)</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <div>
@@ -137,4 +148,4 @@ const LabelLogModal = () => {
   );
 };
 
-export default LabelLogModal;
+export default React.memo(LabelLogModal);

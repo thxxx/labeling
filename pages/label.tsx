@@ -147,16 +147,17 @@ const Label = ({ itemEl }: LabelProps) => {
 export default Label;
 
 const LabelContainer = styled.div`
-    border:1px solid black;
-    border-radius:8px;
-    padding:15px;
-    width:80%;
-    margin:10px;
+  background:white;
+  border:1px solid rgba(0,0,0,0.3);
+  border-radius:8px;
+  padding:15px;
+  width:80%;
+  margin:10px;
 
-    .index{
-      font-size:14px;
-      color:rgba(60,60,60,1);
-    }
+  .index{
+    font-size:14px;
+    color:rgba(60,60,60,1);
+  }
 `;
 
 const LabelTop = styled.div`

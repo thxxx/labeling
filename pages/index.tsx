@@ -9,6 +9,7 @@ import Ontology from "@/src/ontology";
 import { createClient } from "@supabase/supabase-js";
 import Startlabeling from "@/src/startlabeling";
 import { useLogStore } from "@/store/useLogStore";
+import Login from "@/src/login";
 
 export const supabaseClient = createClient(
   "https://hhvjxvsajsovyzgmfvgd.supabase.co",
@@ -16,20 +17,6 @@ export const supabaseClient = createClient(
 );
 
 const ROWS_PER_PAGE = 10;
-
-type UserInformation = {
-  id: string;
-  name: string;
-  remain_num: number;
-};
-
-const USER_INFORMATIONS: UserInformation[] = [
-  {
-    id: "test",
-    name: "호진",
-    remain_num: 30,
-  },
-];
 
 export type ItemType = {
   audio_storage_link: string;
@@ -59,18 +46,8 @@ const dummy: ItemType = {
 };
 
 export default function Home() {
-  const {
-    id,
-    isLoggedIn,
-    allDatas,
-    isStart,
-    setIsStart,
-    setAllDatas,
-    setIsLoggedIn,
-    setId,
-  } = useUserStore();
+  const { id, isLoggedIn, allDatas, user, setAllDatas } = useUserStore();
   const { logId, logNum, startedAt, setLogNum } = useLogStore();
-  const [user, setUser] = useState<UserInformation>();
   const [page, setPage] = useState<number>(1);
   const [maxpage, setMaxpage] = useState<number>(1);
   const [prevCount, setPrevCount] = useState<number>(0);
@@ -83,16 +60,6 @@ export default function Home() {
     // loadAudios();
   }, []);
 
-  const submitId = (inputId: string) => {
-    const userFind = USER_INFORMATIONS.filter((doc) => doc.id === inputId);
-    if (userFind.length > 0) {
-      setIsLoggedIn(true);
-      setUser(userFind[0]);
-      loadAudios();
-    } else {
-      console.log("wrong!");
-    }
-  };
   const previousLabelAudios = async () => {
     const { data, error } = await supabaseClient
       .from("labels")
@@ -121,40 +88,40 @@ export default function Home() {
   };
 
   const loadAudios = async () => {
-    console.log("load more datas ", allDatas.length);
-    const { data, error } = await supabaseClient
-      .from("labels")
-      .select("*")
-      .eq("user_id", id)
-      .eq("is_done", false)
-      .gt("index", maxIndex)
-      .order("index", { ascending: true })
-      .limit(10);
-    if (data && data.length > 0) {
-      const max_index = data.sort((a, b) => b.index - a.index)[0].index;
-      setMaxIndex(max_index);
-      setItems(data.sort((a, b) => a.index - b.index));
-      setAllDatas([...allDatas, ...data]);
-    }
+    // console.log("load more datas ", allDatas.length);
+    // const { data, error } = await supabaseClient
+    //   .from("labels")
+    //   .select("*")
+    //   .eq("user_id", id)
+    //   .eq("is_done", false)
+    //   .gt("index", maxIndex)
+    //   .order("index", { ascending: true })
+    //   .limit(10);
+    // if (data && data.length > 0) {
+    //   const max_index = data.sort((a, b) => b.index - a.index)[0].index;
+    //   setMaxIndex(max_index);
+    //   setItems(data.sort((a, b) => a.index - b.index));
+    //   setAllDatas([...allDatas, ...data]);
+    // }
     // supabase에서 유저 id로, 아직 안한 것들 중 index 작은 순서대로 10개 불러오기
-    // const datas = [
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    //   dummy,
-    // ];
-    // setItems(datas);
-    // setAllDatas([...allDatas, ...datas]);
+    const datas = [
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+      dummy,
+    ];
+    setItems(datas);
+    setAllDatas([...allDatas, ...datas]);
   };
 
   return (
-    <main>
+    <Main>
       {isLoggedIn && user ? (
         <div>
           <Ontology isOpen={isOpen} onClose={onClose} />
@@ -165,7 +132,7 @@ export default function Home() {
             Check labeling instruction
           </FloatingButton>
           <IndexTopContainer>
-            <p>Hello Welcome {user.name}</p>
+            <p>Hello Welcome</p>
             <p>
               Check this guide when you do labeling :{" "}
               <span
@@ -255,15 +222,16 @@ export default function Home() {
           </PagesContainer>
         </div>
       ) : (
-        <div>
-          <p>Type your id</p>
-          <Input onChange={(e) => setId(e.currentTarget.value)} value={id} />
-          <Button onClick={() => submitId(id)}>enter</Button>
-        </div>
+        <Login loadAudios={() => loadAudios()} />
       )}
-    </main>
+    </Main>
   );
 }
+
+const Main = styled.main`
+  padding:16px;
+  background:rgba(200,200,210,0.1);
+`;
 
 const PagesContainer = styled.div`
   display:flex;
@@ -317,6 +285,9 @@ const FloatingButton = styled.div`
 
 const IndexTopContainer = styled.div`
   padding:20px;
+  border-radius:6px;
+  background:white;
+
   .a{
     &:hover{
       color:rgba(30,30,30,1);
