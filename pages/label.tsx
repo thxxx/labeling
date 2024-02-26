@@ -87,7 +87,7 @@ const Label = ({ itemEl }: LabelProps) => {
 
   return (
     <LabelContainer>
-      <p className="index">Index : {itemEl.index}</p>
+      <p className="index">Index : {itemEl && itemEl.index}</p>
       <LabelTop>
         <div className="audio">
           {audioSrc && <audio controls src={audioSrc}></audio>}
