@@ -15,7 +15,7 @@ export type LogState = {
   setLogId: (logId: string) => void;
   setLogNum: (logNum: number) => void;
   setLabelLogs: (labelLogs: LabelingLogType[]) => void;
-  setStartedAt: (startedAt: Date) => void;
+  setStartedAt: (startedAt: Date | null) => void;
 };
 
 export const useLogStore = create<LogState>((set) => ({

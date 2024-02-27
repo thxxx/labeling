@@ -24,7 +24,6 @@ const Login = ({ loadAudios }: { loadAudios: () => void }) => {
       console.log(inputId, data[0]);
     } else {
       alert("wrong id");
-      console.log("wrong!");
     }
   };
 
@@ -37,7 +36,7 @@ const Login = ({ loadAudios }: { loadAudios: () => void }) => {
           submitId(id);
         }}>
         <div>
-          <p>Type your id</p>
+          <p>Type your assigned id</p>
         </div>
         <div>
           <Input onChange={(e) => setId(e.currentTarget.value)} value={id} />

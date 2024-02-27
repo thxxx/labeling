@@ -4,7 +4,7 @@ import { create } from "zustand";
 export type UserInformation = {
   id: string;
   name: string;
-  remain_num: number;
+  finish_num: number;
 };
 
 export type UserState = {

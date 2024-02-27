@@ -1,11 +1,12 @@
 import { useUserStore } from "@/store/useStore";
 import { Button, useDisclosure } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FinishModal from "./finishModal";
 import { createClient } from "@supabase/supabase-js";
 import { useLogStore } from "@/store/useLogStore";
 import LabelLogModal from "./labelLogs";
 import { v4 as uuidv4 } from "uuid";
+import AllFinishedModal from "./finishCeleb";
 
 const supabaseClient = createClient(
   "https://hhvjxvsajsovyzgmfvgd.supabase.co",
@@ -13,18 +14,10 @@ const supabaseClient = createClient(
 );
 
 const Startlabeling = () => {
-  const { isStart, id, setId, setIsStart } = useUserStore();
+  const { isStart, user, id, setId, setIsStart } = useUserStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    logId,
-    logNum,
-    labelLogs,
-    startedAt,
-    setStartedAt,
-    setLabelLogs,
-    setLogId,
-    setLogNum,
-  } = useLogStore();
+  const { logId, logNum, setStartedAt, setLogId, setLogNum } = useLogStore();
+  const [isFinishOpen, setIsFinishOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -43,7 +36,7 @@ const Startlabeling = () => {
         setStartedAt(unfinished_log[0].start_at);
       }
     })();
-  }, []);
+  }, [id]);
 
   const startlabel = async () => {
     const newLogId = uuidv4();
@@ -68,6 +61,23 @@ const Startlabeling = () => {
       .update(body)
       .eq("user_id", id)
       .eq("log_id", logId);
+
+    const response = await supabaseClient
+      .from("labelUser")
+      .select()
+      .eq("user_id", id);
+    if (response.data && response.data.length > 0) {
+      await supabaseClient
+        .from("labelUser")
+        .update({
+          finish_num: response.data[0].finish_num + logNum,
+        })
+        .eq("user_id", id);
+      if (response.data[0].finish_num + logNum >= 499) {
+        setIsFinishOpen(true);
+      }
+    }
+    setStartedAt(null);
     onClose();
   };
 
@@ -85,6 +95,12 @@ const Startlabeling = () => {
         {isStart ? "Stop" : "Start labeling"}
       </Button>
       <LabelLogModal />
+      <AllFinishedModal
+        isOpen={isFinishOpen}
+        onClose={() => {
+          setIsFinishOpen(false);
+        }}
+      />
       <FinishModal
         isOpen={isOpen}
         onClose={onClose}
@@ -94,4 +110,4 @@ const Startlabeling = () => {
   );
 };
 
-export default Startlabeling;
+export default React.memo(Startlabeling);
