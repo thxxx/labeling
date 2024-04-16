@@ -20,7 +20,7 @@ type OntologyProps = {
 
 const FinishModal = ({ isOpen, onClose, finishLabel }: OntologyProps) => {
   const { setIsStart } = useUserStore();
-  const { logId, logNum, setLogId, setLogNum } = useLogStore();
+  const { logNum, setLogNum } = useLogStore();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -37,7 +37,6 @@ const FinishModal = ({ isOpen, onClose, finishLabel }: OntologyProps) => {
             </div>
           </div>
         </ModalBody>
-
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>
             Close
