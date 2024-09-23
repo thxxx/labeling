@@ -132,17 +132,27 @@ export default function Home() {
             Check labeling instruction
           </FloatingButton>
           <IndexTopContainer>
-            <p>Hello Welcome</p>
+            <p>Welcome</p>
             <p>
-              Check this guide when you do labeling :{" "}
+              Check the manual in labeling :{" "}
               <span
                 className="a"
                 onClick={() => {
                   window.open(
-                    "https://www.notion.so/Test-Notion-Page-df374670f9f2413da5ad077b990fd9ca"
+                    "https://brash-cord-438.notion.site/Audio-Labeling-Standard-bf8a7c8d8ee149fcbfaf1ead49aab0c4?pvs"
                   );
                 }}>
                 Guide link
+              </span>
+              ,
+              <span
+                className="a"
+                onClick={() => {
+                  window.open(
+                    "https://brash-cord-438.notion.site/Acoustic-Features-Description-81cc1687b9e14d268cd7d43692752fd4?pvs=4"
+                  );
+                }}>
+                Key description
               </span>
             </p>
             <p>Current labeled num : {logNum}</p>
